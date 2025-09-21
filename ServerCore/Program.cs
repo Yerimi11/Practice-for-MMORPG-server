@@ -6,27 +6,44 @@ namespace ServerCore
 {
     class Program
     {
+        static int x = 0;
+        static int y = 0;
+        static int r1 = 0;
+        static int r2 = 0;
+
+        static void Thread_1()
+        {
+            y = 1; // Store y
+            r1 = x; // Load x
+        }
+
+        static void Thread_2()
+        {
+            x = 1; // Store x
+            r2 = y; // Load y
+        }
+
         static void Main(string[] args)
         {
-            int[,] arr = new int[10000, 10000];
-
+            int count = 0;
+            while (true)
             {
-                long now = DateTime.Now.Ticks;
-                for (int y = 0; y < 10000; y++)
-                    for (int x = 0; x < 10000; x++)
-                        arr[y, x] = 1;
-                long end = DateTime.Now.Ticks;
-                Console.WriteLine($"(y, x) 순서 걸린 시간 {end - now}");
-            }
+                count++;
+                x = y = r1 = r2 = 0;
 
-            {
-                long now = DateTime.Now.Ticks;
-                for (int y = 0; y < 10000; y++)
-                    for (int x = 0; x < 10000; x++)
-                        arr[x, y] = 1;
-                long end = DateTime.Now.Ticks;
-                Console.WriteLine($"(x, y) 순서 걸린 시간 {end - now}");
+                Task t1 = new Task(Thread_1);
+                Task t2 = new Task(Thread_2);
+                t1.Start();
+                t2.Start();
+                
+                Task.WaitAll(t1, t2);
+
+                if (r1 == 0 && r2 == 0)
+                {
+                    break;
+                }
             }
+            Console.WriteLine($"{count}번 만에 빠져나옴");
         }
     }
 }
