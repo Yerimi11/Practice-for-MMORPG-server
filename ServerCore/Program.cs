@@ -14,13 +14,25 @@ namespace ServerCore
             for (int i = 0; i < 1000000; i++)
             {
                 // 상호배제 (Mutual Exclusion)
+                lock (_obj)
+                {
+                    // Monitor.Enter(_obj)
+                    number++;
+                    // Monitor.Exit(_obj)
+                }
 
-                // Critical Section std::mutex
-                Monitor.Enter(_obj); // lock (_obj)
 
-                number++;
+                //try
+                //{
+                //    Monitor.Enter(_obj); // lock (_obj)
+                //    number++;
 
-                Monitor.Exit(_obj); // 잠금 해제
+                //    return; // return 후 finally 실행됨
+                //}
+                //finally
+                //{
+                //    Monitor.Exit(_obj); // 잠금 해제
+                //}
             }
         }
 
@@ -28,11 +40,10 @@ namespace ServerCore
         {
             for (int i = 0; i < 1000000; i++)
             {
-                Monitor.Enter(_obj); 
-
-                number--;
-
-                Monitor.Exit(_obj);
+                lock (_obj)
+                {
+                    number--;
+                }
             }
         }
 
